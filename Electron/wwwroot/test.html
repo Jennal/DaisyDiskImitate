@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DaisyDiskImitate</title>
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="highcharts/css/highcharts.css" />
+    <link href="css/site.css" rel="stylesheet" />
+    <link href="DaisyDiskImitate.styles.css" rel="stylesheet" />
+    <script src="highcharts/highcharts.src.js"></script>
+    <script src="highcharts/modules/exporting.src.js"></script>
+    <script src="highcharts/modules/accessibility.src.js"></script>
+    <script src="js/drawPie.js"></script>
+</head>
+<body>
+
+<figure class="highcharts-figure">
+    <div id="container"></div>
+    <p class="highcharts-description">
+        In Highcharts, pies can also be hollow, in which case they are commonly
+        referred to as donut charts. This pie also has an inner chart, resulting
+        in a hierarchical type of visualization.
+    </p>
+</figure>
+
+<script>
+    var elem = document.getElementById("container");
+    if (elem !== undefined) drawPie();
+</script>
+</body>
+</html>
