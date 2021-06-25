@@ -63,7 +63,11 @@ namespace DaisyDiskImitate
             {
                 var win = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions
                 {
-                    Show = false
+                    Show = false,
+                    WebPreferences = new WebPreferences
+                    {
+                        NodeIntegration = false
+                    }
                 });
                 win.OnReadyToShow += () =>
                 {

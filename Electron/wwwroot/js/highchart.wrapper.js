@@ -1,14 +1,17 @@
 ﻿window.loadHighchart = loadHighchart;
 
 function loadHighchart(id, json) {
-    loadScript("~/highcharts-stock/highcharts.js")
+    loadScript("highcharts/highcharts.js")
         .then(() => {
             waitForGlobal("Highcharts", function () {
                 var obj = looseJsonParse(json);
+                console.log(obj);
+                console.log(Highcharts);
                 Highcharts.chart(id, obj);
             });
-        }, () => {
+        }, (ev) => {
             // error loading file
+            console.log("loadHighchart failed", ev);
         });
 };
 
@@ -27,9 +30,9 @@ function looseJsonParse(obj) {
 }
 
 function loadStockchart(id, json) {
-    loadScript("~/highcharts-stock/highstock.js")
+    loadScript("highcharts-stock/highstock.js")
         .then(() => {
-            loadScript("~/highcharts-stock/modules/data.js")
+            loadScript("highcharts-stock/modules/data.js")
                 .then(() => {
                     waitForGlobal("Highcharts", function () {
                         var obj = looseJsonParse(json);
