@@ -10,11 +10,13 @@
   <ItemGroup>
     <PackageReference Include="ElectronNET.API" Version="11.5.1" />
     <PackageReference Include="Highsoft.Highcharts" Version="9.1.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiskUsage\DiskUsage.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Controllers" />
     <Folder Include="wwwroot\highcharts" />
   </ItemGroup>
 </Project>
