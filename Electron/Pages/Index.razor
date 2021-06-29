@@ -1,8 +1,10 @@
 @page "/"
+@inject IJSRuntime jsruntime;
 
-<Highchart Json="@chartjson">
+@* <Highchart Json="@chartjson" /> *@
 
-</Highchart>
+<div id="container"></div>
+
 @code{
     string chartjson = @" {
 
@@ -73,4 +75,10 @@
         }]
     }
 }";
+    
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        await jsruntime.InvokeVoidAsync("drawPie");
+        await base.OnAfterRenderAsync(firstRender);
+    }
 }

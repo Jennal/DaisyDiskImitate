@@ -10,19 +10,19 @@
 
     protected override void OnParametersSet()
     {
-        Console.WriteLine("Component.Highchart.OnParametersSet");
+        //Console.WriteLine("Component.Highchart.OnParametersSet");
         StateHasChanged();
         base.OnParametersSet();
     }
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
-        Console.WriteLine($"Component.Highchart.OnAfterRenderAsync({firstRender}) => \n\t{id} \n\t{Json}");
+        // Console.WriteLine($"Component.Highchart.OnAfterRenderAsync({firstRender}) => \n\t{id} \n\t{Json}");
         
         if (!string.IsNullOrEmpty(Json))
         {
-            Console.WriteLine(" =====> jsruntime.InvokeVoidAsync");
+            // Console.WriteLine(" =====> jsruntime.InvokeVoidAsync");
             await jsruntime.InvokeVoidAsync("loadHighchart", new object[] { id, Json });
-            Console.WriteLine(" <===== jsruntime.InvokeVoidAsync");
+            // Console.WriteLine(" <===== jsruntime.InvokeVoidAsync");
         }
 
         await base.OnAfterRenderAsync(firstRender);
