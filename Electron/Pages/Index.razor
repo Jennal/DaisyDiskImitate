@@ -6,11 +6,13 @@
 @* <Highchart Json="@chartjson" /> *@
 
 <DirectoryChooser @ref="_directoryChooser" OnValueChanged="@OnDirChanged" />
-<div>@Progress</div>
+<ProgressBar @ref="_progressBar" />
 <div id="container"></div>
 
 @code{
     private DirectoryChooser _directoryChooser;
+    private ProgressBar _progressBar;
+    
     private DiskItem _diskItem;
 
     private string Progress = "0%";
@@ -29,10 +31,10 @@
 
     public void Update()
     {
-        // var val = _diskItem.Progress * 100;
-        // Progress = $"{val:F1}%";
-        // Console.WriteLine($"{_diskItem.IsFilled} {Progress}");
-        // InvokeAsync(StateHasChanged);
+        var val = _diskItem.Progress * 100;
+        Progress = $"{val:F1}%";
+        Console.WriteLine($"{_diskItem.IsFilled} {Progress}");
+        _progressBar.Progress = _diskItem.Progress;
     }
 
 }

@@ -1,0 +1,23 @@
+﻿<div>@ProgressStr</div>
+
+@code {
+    private float _progress;
+    [Parameter] public float Progress
+    {
+        get => _progress;
+        set
+        {
+            _progress = value;
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private string ProgressStr
+    {
+        get
+        {
+            var val = _progress * 100;
+            return $"{val:F1}%";
+        }
+    }
+}
