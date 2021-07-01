@@ -1,13 +1,17 @@
-﻿@inject IJSRuntime jsruntime;
+﻿@using DiskUsage
+@using DaisyDiskImitate.Data
+@using System.IO
+@using Newtonsoft.Json
+@inject IJSRuntime jsruntime;
 
 <div id="@id"></div>
 
 @code
 {
-    [Parameter] public string Json { get; set; }
     private string id { get; set; } = "Highchart" + Guid.NewGuid();
-
-
+    
+    public DiskItem Data { get; set; }
+    
     protected override void OnParametersSet()
     {
         //Console.WriteLine("Component.Highchart.OnParametersSet");
@@ -16,11 +20,73 @@
     }
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!string.IsNullOrEmpty(Json))
+        // SetData(Data);
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public async void SetData(DiskItem data)
+    {
+        Data = data;
+        if (Data == null) return;
+
+        var json = ConvertJson(Data);
+        Console.WriteLine(json);
+        await jsruntime.InvokeVoidAsync("drawPie", id, json);
+        await InvokeAsync(StateHasChanged);
+    }
+    
+    private string ConvertJson(DiskItem data)
+    {
+        var jo = new PieData
         {
-            await jsruntime.InvokeVoidAsync("loadHighchart", id, Json);
+            title = data.FullPath,
+            totalSize = data.HumanReadableSize,
+            data = new List<PieDataItem>()
+        };
+
+        foreach (var child in data.Children.OrderByDescending(o => o.Size)
+                                                   .ThenBy(o => o.Type)
+                                                   .ThenBy(o => o.FullPath))
+        {
+            if (child.Size <= 0) continue;
+            
+            var name = Path.GetFileName(child.FullPath);
+            var item = new PieDataItem
+            {
+                name = $"{name} ({child.HumanReadableSize})",
+                y = (float)Math.Round((double) child.Size / data.Size * 100, 1)
+            };
+
+            if (item.y <= float.Epsilon) continue;
+            
+            if (child.Type == FileType.Directory)
+            {
+                item.children = new List<PieDataItem>();
+                foreach (var subChild in child.Children.OrderByDescending(o => o.Size)
+                                                               .ThenBy(o => o.Type)
+                                                               .ThenBy(o => o.FullPath))
+                {
+                    if (subChild.Size <= 0) continue;
+                    
+                    var subName = $"{name}/{Path.GetFileName(subChild.FullPath)}";
+                    subName = subName.Replace("\r", "")
+                                     .Replace("\n", "");
+                    
+                    
+                    var subItem = new PieDataItem
+                    {
+                        name = $"{subName} ({subChild.HumanReadableSize})",
+                        y = (float)Math.Round((double) subChild.Size / data.Size * 100, 1)
+                    };
+                    if (subItem.y <= float.Epsilon) continue;
+                    
+                    item.children.Add(subItem);
+                }
+            }
+            
+            jo.data.Add(item);
         }
 
-        await base.OnAfterRenderAsync(firstRender);
+        return JsonConvert.SerializeObject(jo);
     }
 }

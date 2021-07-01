@@ -7,11 +7,12 @@
 
 <DirectoryChooser @ref="_directoryChooser" OnValueChanged="@OnDirChanged" />
 <ProgressBar @ref="_progressBar" />
-<div id="container"></div>
+<Highchart @ref="_highchart" />
 
 @code{
     private DirectoryChooser _directoryChooser;
     private ProgressBar _progressBar;
+    private Highchart _highchart;
     
     private DiskItem _diskItem;
 
@@ -19,7 +20,7 @@
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
-        await jsruntime.InvokeVoidAsync("drawPie");
+        // await jsruntime.InvokeVoidAsync("drawPie", "container");
         await base.OnAfterRenderAsync(firstRender);
     }
 
@@ -31,13 +32,10 @@
 
     public void Update()
     {
-        // var val = _diskItem.Progress * 100;
-        // Progress = $"{val:F1}%";
-        // Console.WriteLine($"{_diskItem.IsFilled} {Progress}");
         _progressBar.Progress = _diskItem.Progress;
         if (_diskItem.IsFilled)
         {
-            //TODO:
+            _highchart.SetData(_diskItem);       
         }
     }
 

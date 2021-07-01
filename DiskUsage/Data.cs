@@ -33,11 +33,11 @@ namespace DiskUsage
         
         #region For Human Readable
 
-        const long K = 1024;
-        const long M = 1048576;
-        const long G = 1073741824;
-        const long T = 1099511627776;
-        const long P = 1125899906842624;
+        public const long K = 1024;
+        public const long M = 1048576;
+        public const long G = 1073741824;
+        public const long T = 1099511627776;
+        public const long P = 1125899906842624;
 
         private static readonly Dictionary<long, string> s_sizeDict = new()
         {
