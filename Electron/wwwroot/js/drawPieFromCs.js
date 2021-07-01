@@ -59,6 +59,13 @@
                 },
                 color: '#ffffff',
                 distance: -30
+            },
+            point: {
+                events: {
+                    click: function (event) {
+                        alert(this.name);
+                    }
+                }
             }
         }, {
             name: 'Size',
@@ -71,6 +78,13 @@
 
                     // display only if larger than 1
                     return this.y > 1 ? '<b>' + this.point.name + '</b> ' : null;
+                }
+            },
+            point: {
+                events: {
+                    click: function (event) {
+                        alert(this.name);
+                    }
                 }
             },
             id: 'subDir'
@@ -86,6 +100,13 @@
                 },
                 color: '#ffffff',
                 distance: -30
+            },
+            point: {
+                events: {
+                    click: function (event) {
+                        alert(this.name);
+                    }
+                }
             }
         }];
     }
