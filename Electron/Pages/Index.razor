@@ -31,10 +31,14 @@
 
     public void Update()
     {
-        var val = _diskItem.Progress * 100;
-        Progress = $"{val:F1}%";
-        Console.WriteLine($"{_diskItem.IsFilled} {Progress}");
+        // var val = _diskItem.Progress * 100;
+        // Progress = $"{val:F1}%";
+        // Console.WriteLine($"{_diskItem.IsFilled} {Progress}");
         _progressBar.Progress = _diskItem.Progress;
+        if (_diskItem.IsFilled)
+        {
+            //TODO:
+        }
     }
 
 }
