@@ -30,6 +30,7 @@
         brightness;
 
     data = looseJsonParse(json);
+    console.log(data)
 
     // Build the data arrays
     for (i = 0; i < rootDataLen; i += 1) {
@@ -53,7 +54,7 @@
             subDataLen = data.data[i].children.length;
             for (j = 0; j < subDataLen; j += 1) {
                 brightness = 0.2 - (j / subDataLen) / 5;
-                console.log(data.data[i].children[j].name, color, brightness, Highcharts.color(color).brighten(brightness).get());
+                // console.log(data.data[i].children[j].name, color, brightness, Highcharts.color(color).brighten(brightness).get());
                 subData.push({
                     name: data.data[i].children[j].name,
                     y: data.data[i].children[j].y,
@@ -129,5 +130,6 @@
 }
 
 function looseJsonParse(obj) {
+    console.log(obj);
     return Function('"use strict";return (' + obj + ')')();
 }

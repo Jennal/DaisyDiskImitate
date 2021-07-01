@@ -48,20 +48,19 @@ namespace DiskUsage
             {K, "K"},
         };
 
-        #endregion        
-        
-        public string HumanReadableSize
+        public static string ToHumanReadable(long size)
         {
-            get
+            foreach (var item in s_sizeDict)
             {
-                foreach (var item in s_sizeDict)
-                {
-                    if (Size >= item.Key) return $"{(double)Size/item.Key:F1} {item.Value}";
-                }
-
-                return $"{Size} B";
+                if (size >= item.Key) return $"{(double)size/item.Key:F1} {item.Value}";
             }
+
+            return $"{size} B";
         }
+        
+        #endregion
+
+        public string HumanReadableSize => ToHumanReadable(Size);
         
         public float Progress
         {

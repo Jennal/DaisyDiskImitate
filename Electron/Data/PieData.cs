@@ -3,11 +3,11 @@ using Newtonsoft.Json;
 
 namespace DaisyDiskImitate.Data
 {
-    [JsonObject]
+    [JsonObject(MemberSerialization.OptOut)]
     public class PieDataItem
     {
         public string name;
-        public string size;
+        [JsonIgnore] public long size;
         public float y;
         public List<PieDataItem> children;
     }
