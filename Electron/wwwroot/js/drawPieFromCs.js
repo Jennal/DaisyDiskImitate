@@ -1,35 +1,18 @@
 ﻿function drawPie(id, json) {
     var colors = Highcharts.getOptions().colors,
-        data = {
-            title: "C:\\Android",
-            totalSize: "100 G",
-            data:[
-                {
-                    name: "Android",
-                    y: 62.74,
-                    children: [{
-                        name: 'Android/sub1',
-                        y: 20
-                    },{
-                        name: 'Android/sub2',
-                        y: 42.74
-                    }]
-                },
-                {
-                    name: "iOS",
-                    y: 10.57
-                }
-            ]
-        },
+        data,
         rootData = [],
         subData = [],
+        series = [],
         i,
         j,
-        rootDataLen = data.data.length,
+        rootDataLen = 0,
         subDataLen = 0,
+        totalSubCount = 0,
         brightness;
 
     data = looseJsonParse(json);
+    rootDataLen = data.data.length;
     console.log(data)
 
     // Build the data arrays
@@ -52,6 +35,7 @@
             });
         } else {
             subDataLen = data.data[i].children.length;
+            totalSubCount += subDataLen;
             for (j = 0; j < subDataLen; j += 1) {
                 brightness = 0.2 - (j / subDataLen) / 5;
                 // console.log(data.data[i].children[j].name, color, brightness, Highcharts.color(color).brighten(brightness).get());
@@ -64,6 +48,48 @@
         }
     }
 
+    if (totalSubCount > 0) {
+        series = [{
+            name: 'Size',
+            data: rootData,
+            size: '60%',
+            dataLabels: {
+                formatter: function () {
+                    return this.y > 5 ? this.point.name : null;
+                },
+                color: '#ffffff',
+                distance: -30
+            }
+        }, {
+            name: 'Size',
+            data: subData,
+            size: '80%',
+            innerSize: '60%',
+            dataLabels: {
+                formatter: function () {
+                    if (!this.point.name) return null;
+
+                    // display only if larger than 1
+                    return this.y > 1 ? '<b>' + this.point.name + '</b> ' : null;
+                }
+            },
+            id: 'subDir'
+        }];
+    } else {
+        series = [{
+            name: 'Size',
+            data: rootData,
+            size: '80%',
+            dataLabels: {
+                formatter: function () {
+                    return this.y > 5 ? this.point.name : null;
+                },
+                color: '#ffffff',
+                distance: -30
+            }
+        }];
+    }
+    
     // Create the chart
     Highcharts.chart(id, {
         chart: {
@@ -84,32 +110,7 @@
         tooltip: {
             valueSuffix: '%'
         },
-        series: [{
-            name: 'Size',
-            data: rootData,
-            size: '60%',
-            dataLabels: {
-                formatter: function () {
-                    return this.y > 5 ? this.point.name : null;
-                },
-                color: '#ffffff',
-                distance: -30
-            }
-        }, {
-            name: 'Size',
-            data: subData,
-            size: '80%',
-            innerSize: '60%',
-            dataLabels: {
-                formatter: function () {
-                    if (!this.point.name) return null;
-                    
-                    // display only if larger than 1
-                    return this.y > 1 ? '<b>' + this.point.name + '</b> ' : null;
-                }
-            },
-            id: 'subDir'
-        }],
+        series: series,
         responsive: {
             rules: [{
                 condition: {

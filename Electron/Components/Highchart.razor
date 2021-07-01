@@ -71,8 +71,6 @@
                 other.size += child.Size;
                 other.children.Add(item);
                 other.name = $"Others ({DiskItem.ToHumanReadable(other.size)})";
-                other.y = (float) Math.Round((double) other.size / data.Size * 100, 1);
-                if (other.y < 1f) other.y = 1f;
                 continue;
             }
             percent += item.y;
@@ -107,8 +105,6 @@
                     {
                         subOther.size += subChild.Size;
                         subOther.name = $"Others ({DiskItem.ToHumanReadable(subOther.size)})";
-                        subOther.y = (float) Math.Round((double) subOther.size / data.Size * 100, 1);
-                        if (subOther.y < 1f) subOther.y = 1f;
                         continue;
                     }
                     subPercent += subItem.y;
@@ -118,6 +114,7 @@
 
                 if (subOther.size > 0)
                 {
+                    subOther.y = item.y - item.children.Sum(o => o.y);
                     item.children.Add(subOther);
                 }
             }
@@ -127,6 +124,7 @@
 
         if (other.children.Any())
         {
+            other.y = 100f - jo.data.Sum(o => o.y);
             jo.data.Add(other);
         }
 
