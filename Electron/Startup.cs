@@ -72,6 +72,7 @@ namespace DaisyDiskImitate
                 });
                 win.OnReadyToShow += () =>
                 {
+                    Electron.Menu.SetApplicationMenu(new MenuItem[]{ });
                     win.Show();
                 };
             });
