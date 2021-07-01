@@ -1,0 +1,36 @@
+﻿@using ElectronNET.API
+@using ElectronNET.API.Entities
+<div>
+    <input type="text" value="@DirPath" readonly="readonly" style="width: 80%" @onclick="Click" />
+    <button type="button" @onclick="Click">选择...</button>
+</div>
+
+@code {
+    [Parameter]
+    public string DirPath { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnValueChanged { get; set; }
+
+    private void Click()
+    {
+        var mainWindow = Electron.WindowManager.BrowserWindows.First();
+        var options = new OpenDialogOptions {
+            Properties = new OpenDialogProperty[] {
+                OpenDialogProperty.openDirectory,
+                OpenDialogProperty.showHiddenFiles,
+            }
+        };
+
+        var task = Electron.Dialog.ShowOpenDialogAsync(mainWindow, options);
+        task.Wait();
+        var files = task.Result;
+        if (files is not {Length: > 0 }) return;
+        
+        var newPath = files.FirstOrDefault();
+        if (newPath == DirPath) return;
+        
+        DirPath = files.FirstOrDefault();
+        OnValueChanged.InvokeAsync(DirPath);
+    }
+}
