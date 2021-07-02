@@ -8,6 +8,10 @@ So, I try to make a poor imitation of [DaisyDisk](https://daisydiskapp.com/) by
 - [Blazor-Server](https://docs.microsoft.com/en-us/aspnet/core/blazor/?view=aspnetcore-5.0)
 - [HighCharts](https://www.highcharts.com/)
 
+## Show case
+
+![](docs/showcase.gif)
+
 ## License
 
 MIT-licensed
