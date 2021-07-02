@@ -95,7 +95,7 @@
 
             if (percent >= 9500)
             {
-                if (item.y <= float.Epsilon) item.y = 10;
+                // if (item.y <= float.Epsilon) item.y = 10;
                 other.size += child.Size;
                 other.children.Add(item);
                 other.name = $"Others ({DiskItem.ToHumanReadable(other.size)})";
