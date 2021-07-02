@@ -40,6 +40,9 @@
         Data = data;
         if (Data == null) return;
 
+        _objRef?.Dispose();
+        _objRef = DotNetObjectReference.Create(this);
+        await jsruntime.InvokeAsync<string>("registerCsObj", _objRef);
         await UpdateView(Data);
     }
 
