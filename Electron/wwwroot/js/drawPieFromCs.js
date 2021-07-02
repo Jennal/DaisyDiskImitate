@@ -74,7 +74,7 @@
     },{
         name: 'Size',
         data: rootData,
-        size: '60%',
+        size: '50%',
         innerSize: '30%',
         dataLabels: {
             formatter: function () {
