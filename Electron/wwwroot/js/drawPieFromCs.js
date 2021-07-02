@@ -48,26 +48,28 @@
         }
     }
 
-    if (totalSubCount > 0) {
-        series = [{
-            name: 'Size',
-            data: rootData,
-            size: '60%',
-            dataLabels: {
-                formatter: function () {
-                    return this.y > 5 ? this.point.name : null;
-                },
-                color: '#ffffff',
-                distance: -30
+    series = [{
+        name: 'Size',
+        data: rootData,
+        size: '60%',
+        dataLabels: {
+            formatter: function () {
+                return this.y > 400 ? this.point.name : null;
             },
-            point: {
-                events: {
-                    click: function (event) {
-                        alert(this.name);
-                    }
+            color: '#ffffff',
+            distance: -30
+        },
+        point: {
+            events: {
+                click: function (event) {
+                    alert(this.name);
                 }
             }
-        }, {
+        }
+    }];
+    
+    if (totalSubCount > 0) {
+        series.push({
             name: 'Size',
             data: subData,
             size: '80%',
@@ -77,7 +79,7 @@
                     if (!this.point.name) return null;
 
                     // display only if larger than 1
-                    return this.y > 1 ? '<b>' + this.point.name + '</b> ' : null;
+                    return this.y > 400 ? '<b>' + this.point.name + '</b> ' : null;
                 }
             },
             point: {
@@ -88,27 +90,7 @@
                 }
             },
             id: 'subDir'
-        }];
-    } else {
-        series = [{
-            name: 'Size',
-            data: rootData,
-            size: '80%',
-            dataLabels: {
-                formatter: function () {
-                    return this.y > 5 ? this.point.name : null;
-                },
-                color: '#ffffff',
-                distance: -30
-            },
-            point: {
-                events: {
-                    click: function (event) {
-                        alert(this.name);
-                    }
-                }
-            }
-        }];
+        });
     }
     
     // Create the chart
@@ -129,7 +111,11 @@
             }
         },
         tooltip: {
-            valueSuffix: '%'
+            // valueSuffix: '%',
+            pointFormatter: function() {
+                return '<span style="color:' + this.color + '">\u25CF</span> '
+                    + 'Percent: <b>' + Math.round(this.y/10)/10 + '%</b><br/>';
+            }
         },
         series: series,
         responsive: {

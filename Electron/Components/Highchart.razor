@@ -30,7 +30,7 @@
         if (Data == null) return;
 
         var json = ConvertJson(Data);
-        Console.WriteLine(json);
+        // Console.WriteLine(json);
         await jsruntime.InvokeVoidAsync("drawPie", id, json);
         await InvokeAsync(StateHasChanged);
     }
@@ -48,10 +48,10 @@
         {
             name = "Others",
             children = new List<PieDataItem>(),
-            y = 1f,
+            y = 1,
         };
         
-        var percent = 0f;
+        var percent = 0;
         foreach (var child in data.Children.OrderByDescending(o => o.Size)
                                                    .ThenBy(o => o.Type)
                                                    .ThenBy(o => o.FullPath))
@@ -62,12 +62,12 @@
             var item = new PieDataItem
             {
                 name = $"{name} ({child.HumanReadableSize})",
-                y = (float)Math.Round((double) child.Size / data.Size * 100, 1)
+                y = (int)Math.Round((double) child.Size / data.Size * 10000, 0)
             };
             
-            if (percent >= 95f)
+            if (percent >= 9500)
             {
-                if(item.y <= float.Epsilon) item.y = 0.1f;
+                if(item.y <= float.Epsilon) item.y = 10;
                 other.size += child.Size;
                 other.children.Add(item);
                 other.name = $"Others ({DiskItem.ToHumanReadable(other.size)})";
@@ -81,8 +81,8 @@
                 var subPercent = 0f;
                 var subOther = new PieDataItem
                 {
-                    name = "Others",
-                    y = 1f,
+                    name = $"{name}/Others",
+                    y = 1,
                 };
                 foreach (var subChild in child.Children.OrderByDescending(o => o.Size)
                                                                .ThenBy(o => o.Type)
@@ -98,13 +98,13 @@
                     var subItem = new PieDataItem
                     {
                         name = $"{subName} ({subChild.HumanReadableSize})",
-                        y = (float)Math.Round((double) subChild.Size / data.Size * 100, 1)
+                        y = (int)Math.Round((double) subChild.Size / data.Size * 10000, 0)
                     };
 
                     if (subPercent >= item.y * 0.95f) // || item.children.Count >= 10)
                     {
                         subOther.size += subChild.Size;
-                        subOther.name = $"Others ({DiskItem.ToHumanReadable(subOther.size)})";
+                        subOther.name = $"{name}/Others ({DiskItem.ToHumanReadable(subOther.size)})";
                         continue;
                     }
                     subPercent += subItem.y;
@@ -124,7 +124,7 @@
 
         if (other.children.Any())
         {
-            other.y = 100f - jo.data.Sum(o => o.y);
+            other.y = 10000 - jo.data.Sum(o => o.y);
             jo.data.Add(other);
         }
 

@@ -8,7 +8,7 @@ namespace DaisyDiskImitate.Data
     {
         public string name;
         [JsonIgnore] public long size;
-        public float y;
+        public int y;
         public List<PieDataItem> children;
     }
     
