@@ -4,13 +4,13 @@
 @using Newtonsoft.Json
 @inject IJSRuntime jsruntime;
 
-<div id="@id"></div>
+<div id="@id" class="pie-container"></div>
 
 @code
 {
     private string id { get; set; } = "Highchart" + Guid.NewGuid();
-    
-    public DiskItem Data { get; set; }
+    private DiskItem Data { get; set; }
+    private DotNetObjectReference<Highchart> _objRef;
     
     protected override void OnParametersSet()
     {
@@ -18,12 +18,19 @@
         StateHasChanged();
         base.OnParametersSet();
     }
-    protected async override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // SetData(Data);
+        _objRef?.Dispose();
+        _objRef = DotNetObjectReference.Create(this);
+        await jsruntime.InvokeAsync<string>("registerCsObj", _objRef);
         await base.OnAfterRenderAsync(firstRender);
     }
 
+    public void Dispose()
+    {
+        _objRef?.Dispose();
+    }
+    
     public async void SetData(DiskItem data)
     {
         Data = data;
@@ -129,5 +136,11 @@
         }
 
         return JsonConvert.SerializeObject(jo);
+    }
+    
+    [JSInvokable]
+    public Task<string> Alert(string val)
+    {
+        return Task.FromResult($"CS: {val}");
     }
 }

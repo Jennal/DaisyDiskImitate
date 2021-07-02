@@ -61,9 +61,7 @@
         },
         point: {
             events: {
-                click: function (event) {
-                    alert(this.name);
-                }
+                click: clickHandler
             }
         }
     }];
@@ -84,9 +82,7 @@
             },
             point: {
                 events: {
-                    click: function (event) {
-                        alert(this.name);
-                    }
+                    click: clickHandler
                 }
             },
             id: 'subDir'
@@ -94,9 +90,14 @@
     }
     
     // Create the chart
-    Highcharts.chart(id, {
+    var chart = Highcharts.chart(id, {
         chart: {
-            type: 'pie'
+            type: 'pie',
+            margin: [0, 0, 0, 0],
+            spacingTop: 0,
+            spacingBottom: 0,
+            spacingLeft: 0,
+            spacingRight: 0
         },
         title: {
             text: data.title
@@ -106,6 +107,7 @@
         },
         plotOptions: {
             pie: {
+                size: '100%',
                 shadow: false,
                 center: ['50%', '50%']
             }
@@ -117,27 +119,73 @@
                     + 'Percent: <b>' + Math.round(this.y/10)/10 + '%</b><br/>';
             }
         },
-        series: series,
-        responsive: {
-            rules: [{
-                condition: {
-                    maxWidth: 400
-                },
-                chartOptions: {
-                    series: [{
-                    }, {
-                        id: 'subDir',
-                        dataLabels: {
-                            enabled: false
-                        }
-                    }]
-                }
-            }]
-        }
+        series: series//,
+        // responsive: {
+        //     rules: [{
+        //         condition: {
+        //             maxWidth: 800
+        //         },
+        //         chartOptions: {
+        //             series: [{
+        //             }, {
+        //                 id: 'subDir',
+        //                 dataLabels: {
+        //                     enabled: false
+        //                 }
+        //             }]
+        //         }
+        //     }]
+        // }
     });
+
+    window.chart = chart;
+    removeAllListeners(window, 'resize');
+    addListener(window, 'resize', function(event) {
+        console.log("resize", chart);
+        chart.reflow();
+    }, true);
 }
 
 function looseJsonParse(obj) {
     console.log(obj);
     return Function('"use strict";return (' + obj + ')')();
+}
+
+function clickHandler(event) {
+    window.csHighchart.invokeMethodAsync('Alert', this.name)
+        .then(data => {
+            alert(data);
+    });
+}
+
+function registerCsObj(obj) {
+    window.csHighchart = obj;
+}
+
+var _eventHandlers = {}; // somewhere global
+
+const addListener = (node, event, handler, capture = false) => {
+    if (!(event in _eventHandlers)) {
+        _eventHandlers[event] = []
+    }
+    // here we track the events and their nodes (note that we cannot
+    // use node as Object keys, as they'd get coerced into a string
+    _eventHandlers[event].push({ node: node, handler: handler, capture: capture })
+    node.addEventListener(event, handler, capture)
+}
+
+const removeAllListeners = (targetNode, event) => {
+    if (!(event in _eventHandlers)) {
+        return;
+    }
+    // remove listeners from the matching nodes
+    var arr = _eventHandlers[event];
+    
+    for(var i=arr.length-1; i>=0; i--) {
+        var item = arr[i];
+        if (item.node !== targetNode) continue;
+        
+        targetNode.removeEventListener(event, item.handler, item.capture);
+        arr.splice(i, 1);
+    }
 }

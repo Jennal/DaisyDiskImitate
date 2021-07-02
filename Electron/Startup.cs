@@ -64,6 +64,8 @@ namespace DaisyDiskImitate
             {
                 var win = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions
                 {
+                    Width = 1024,
+                    Height = 768,
                     Show = false,
                     WebPreferences = new WebPreferences
                     {
@@ -72,7 +74,8 @@ namespace DaisyDiskImitate
                 });
                 win.OnReadyToShow += () =>
                 {
-                    Electron.Menu.SetApplicationMenu(new MenuItem[]{ });
+                    //Remove Menu & Debug tools
+                    // Electron.Menu.SetApplicationMenu(new MenuItem[]{ });
                     win.Show();
                 };
             });
