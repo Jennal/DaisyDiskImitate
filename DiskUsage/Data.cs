@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DiskUsage
@@ -30,6 +31,14 @@ namespace DiskUsage
         public DiskItem Parent;
 
         private IProgressUpdater _progressUpdater;
+
+        #region For ID
+
+        private static int s_nextId = 1;
+
+        #endregion
+        
+        public int Id { get; }
         
         #region For Human Readable
 
@@ -79,7 +88,9 @@ namespace DiskUsage
         }
 
         private DiskItem()
-        {   
+        {
+            Id = s_nextId;
+            Interlocked.Increment(ref s_nextId);
         }
 
         public DiskItem(string path, IProgressUpdater updater=null)
@@ -88,7 +99,10 @@ namespace DiskUsage
             
             Type = attr.HasFlag(FileAttributes.Directory) ? FileType.Directory : FileType.File;
             FullPath = path;
+            Id = s_nextId;
             _progressUpdater = updater;
+
+            Interlocked.Increment(ref s_nextId);
         }
         
         public async Task FillSize()
@@ -171,6 +185,20 @@ namespace DiskUsage
                     }
                 }
             });
+        }
+
+        public DiskItem Find(int id)
+        {
+            if (Id == id) return this;
+            if (Children == null) return null;
+
+            foreach (var child in Children)
+            {
+                var result = child.Find(id);
+                if (result != null) return result;
+            }
+
+            return null;
         }
         
         public void Print(int intend=0)

@@ -17,10 +17,11 @@
 
     // Build the data arrays
     for (i = 0; i < rootDataLen; i += 1) {
-        var color = colors[i % colors.length];
+        var color = colors[(i+2) % colors.length];
         
         // add root data
         rootData.push({
+            id: data.data[i].id,
             name: data.data[i].name,
             y: data.data[i].y,
             color: data.data[i].color || color
@@ -37,9 +38,10 @@
             subDataLen = data.data[i].children.length;
             totalSubCount += subDataLen;
             for (j = 0; j < subDataLen; j += 1) {
-                brightness = 0.2 - (j / subDataLen) / 5;
+                brightness = 0.1 + (j / subDataLen) / 5;
                 // console.log(data.data[i].children[j].name, color, brightness, Highcharts.color(color).brighten(brightness).get());
                 subData.push({
+                    id: data.data[i].children[j].id,
                     name: data.data[i].children[j].name,
                     y: data.data[i].children[j].y,
                     color: data.data[i].children[j].color || Highcharts.color(color).brighten(brightness).get()
@@ -50,10 +52,34 @@
 
     series = [{
         name: 'Size',
-        data: rootData,
-        size: '60%',
+        data: [{
+            id: data.baseId,
+            name: "",
+            y: 1,
+            color: '#ffffff',
+        }],
+        size: '30%',
         dataLabels: {
             formatter: function () {
+                return "Root";
+            },
+            color: '#ffffff',
+            distance: -30
+        },
+        point: {
+            events: {
+                click: clickHandler
+            }
+        }
+    },{
+        name: 'Size',
+        data: rootData,
+        size: '60%',
+        innerSize: '30%',
+        dataLabels: {
+            formatter: function () {
+                if (!this.point.name || this.point.name === "") return null;
+                //400 => 4%
                 return this.y > 400 ? this.point.name : null;
             },
             color: '#ffffff',
@@ -74,9 +100,8 @@
             innerSize: '60%',
             dataLabels: {
                 formatter: function () {
-                    if (!this.point.name) return null;
-
-                    // display only if larger than 1
+                    if (!this.point.name || this.point.name === "") return null;
+                    //400 => 4%
                     return this.y > 400 ? '<b>' + this.point.name + '</b> ' : null;
                 }
             },
@@ -115,6 +140,8 @@
         tooltip: {
             // valueSuffix: '%',
             pointFormatter: function() {
+                if (this.id === 0) return "Back to Base";
+
                 return '<span style="color:' + this.color + '">\u25CF</span> '
                     + 'Percent: <b>' + Math.round(this.y/10)/10 + '%</b><br/>';
             }
@@ -152,10 +179,10 @@ function looseJsonParse(obj) {
 }
 
 function clickHandler(event) {
-    window.csHighchart.invokeMethodAsync('Alert', this.name)
-        .then(data => {
-            alert(data);
-    });
+    window.csHighchart.invokeMethodAsync('SetById', this.id);
+    //     .then(data => {
+    //         alert(data);
+    // });
 }
 
 function registerCsObj(obj) {

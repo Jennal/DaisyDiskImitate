@@ -54,3 +54,7 @@ a, .btn-link {
     height: 600px;
     min-height: 400px;
 }
+
+.highcharts-credits {
+    display:none; !important;
+}

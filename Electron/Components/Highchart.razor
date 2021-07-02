@@ -10,14 +10,18 @@
 {
     private string id { get; set; } = "Highchart" + Guid.NewGuid();
     private DiskItem Data { get; set; }
+    private PieData _pieData;
     private DotNetObjectReference<Highchart> _objRef;
-    
+
+    private DiskItem _currentData;
+
     protected override void OnParametersSet()
     {
-        //Console.WriteLine("Component.Highchart.OnParametersSet");
+    //Console.WriteLine("Component.Highchart.OnParametersSet");
         StateHasChanged();
         base.OnParametersSet();
     }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         _objRef?.Dispose();
@@ -30,22 +34,35 @@
     {
         _objRef?.Dispose();
     }
-    
+
     public async void SetData(DiskItem data)
     {
         Data = data;
         if (Data == null) return;
 
-        var json = ConvertJson(Data);
-        // Console.WriteLine(json);
+        await UpdateView(Data);
+    }
+
+    private async Task UpdateView(DiskItem data)
+    {
+        var json = ConvertJson(data);
+    // Console.WriteLine(json);
+        await jsruntime.InvokeVoidAsync("drawPie", id, json);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task UpdateView(PieData data)
+    {
+        var json = JsonConvert.SerializeObject(data);
         await jsruntime.InvokeVoidAsync("drawPie", id, json);
         await InvokeAsync(StateHasChanged);
     }
     
     private string ConvertJson(DiskItem data)
     {
-        var jo = new PieData
+        _pieData = new PieData
         {
+            baseId = PieDataItemId.ROOT_ID,
             title = data.FullPath,
             totalSize = data.HumanReadableSize,
             data = new List<PieDataItem>()
@@ -53,65 +70,75 @@
 
         var other = new PieDataItem
         {
+            baseId = data.Id,
+            id = PieDataItemId.OUTTER_OTHER_ID,
             name = "Others",
             children = new List<PieDataItem>(),
             y = 1,
         };
-        
+
         var percent = 0;
         foreach (var child in data.Children.OrderByDescending(o => o.Size)
-                                                   .ThenBy(o => o.Type)
-                                                   .ThenBy(o => o.FullPath))
+            .ThenBy(o => o.Type)
+            .ThenBy(o => o.FullPath))
         {
             if (child.Size <= 0) continue;
-            
+
             var name = Path.GetFileName(child.FullPath);
             var item = new PieDataItem
             {
+                baseId = child.Parent.Id,
+                id = child.Id,
                 name = $"{name} ({child.HumanReadableSize})",
-                y = (int)Math.Round((double) child.Size / data.Size * 10000, 0)
+                y = (int) Math.Round((double) child.Size / data.Size * 10000, 0)
             };
-            
+
             if (percent >= 9500)
             {
-                if(item.y <= float.Epsilon) item.y = 10;
+                if (item.y <= float.Epsilon) item.y = 10;
                 other.size += child.Size;
                 other.children.Add(item);
                 other.name = $"Others ({DiskItem.ToHumanReadable(other.size)})";
                 continue;
             }
             percent += item.y;
-            
+
             if (child.Type == FileType.Directory)
             {
                 item.children = new List<PieDataItem>();
                 var subPercent = 0f;
                 var subOther = new PieDataItem
                 {
+                    baseId = child.Id,
+                    id = PieDataItemId.INNER_OTHER_ID,
                     name = $"{name}/Others",
                     y = 1,
+                    children = new List<PieDataItem>()
                 };
                 foreach (var subChild in child.Children.OrderByDescending(o => o.Size)
-                                                               .ThenBy(o => o.Type)
-                                                               .ThenBy(o => o.FullPath))
+                    .ThenBy(o => o.Type)
+                    .ThenBy(o => o.FullPath))
                 {
                     if (subChild.Size <= 0) continue;
-                    
+
                     var subName = $"{name}/{Path.GetFileName(subChild.FullPath)}";
                     subName = subName.Replace("\r", "")
-                                     .Replace("\n", "");
-                    
-                    
+                        .Replace("\n", "");
+
+
                     var subItem = new PieDataItem
                     {
+                        baseId = subChild.Parent.Id,
+                        id = subChild.Id,
                         name = $"{subName} ({subChild.HumanReadableSize})",
-                        y = (int)Math.Round((double) subChild.Size / data.Size * 10000, 0)
+                        y = (int) Math.Round((double) subChild.Size / data.Size * 10000, 0)
                     };
 
                     if (subPercent >= item.y * 0.95f) // || item.children.Count >= 10)
                     {
                         subOther.size += subChild.Size;
                         subOther.name = $"{name}/Others ({DiskItem.ToHumanReadable(subOther.size)})";
+                        subOther.children.Add(subItem);
                         continue;
                     }
                     subPercent += subItem.y;
@@ -125,22 +152,43 @@
                     item.children.Add(subOther);
                 }
             }
-            
-            jo.data.Add(item);
+
+            _pieData.data.Add(item);
         }
 
         if (other.children.Any())
         {
-            other.y = 10000 - jo.data.Sum(o => o.y);
-            jo.data.Add(other);
+            other.y = 10000 - _pieData.data.Sum(o => o.y);
+            _pieData.data.Add(other);
         }
 
-        return JsonConvert.SerializeObject(jo);
+        return JsonConvert.SerializeObject(_pieData);
     }
-    
+
     [JSInvokable]
-    public Task<string> Alert(string val)
+    public async void SetById(int id)
     {
-        return Task.FromResult($"CS: {val}");
+        if (Data == null) return;
+        if (id == PieDataItemId.ROOT_ID && _currentData == null) return;
+
+        DiskItem newItem = null;
+        switch (id)
+        {
+            case PieDataItemId.ROOT_ID:
+                newItem = _currentData.Parent;
+                break;
+            case PieDataItemId.OUTTER_OTHER_ID:
+            case PieDataItemId.INNER_OTHER_ID:
+                var newData = _pieData.Find(id);
+                await UpdateView(newData);
+                break;
+            default:
+                newItem = Data.Find(id);
+                break;
+        }
+        if (newItem == null || newItem.Type == FileType.File) return;
+
+        _currentData = newItem;
+        await UpdateView(_currentData);
     }
 }
