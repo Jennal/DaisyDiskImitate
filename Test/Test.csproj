@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DiskUsage2\DiskUsage2.csproj" />
     <ProjectReference Include="..\DiskUsage\DiskUsage.csproj" />
   </ItemGroup>
 
