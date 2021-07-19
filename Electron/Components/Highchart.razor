@@ -194,4 +194,11 @@
         _currentData = newItem;
         await UpdateView(_currentData);
     }
+
+    [JSInvokable]
+    public string GetProgress()
+    {
+        var val = Data.Progress * 100;
+        return $"{val:F1}%";
+    }
 }

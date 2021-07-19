@@ -24,10 +24,12 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private void OnDirChanged(string path)
+    private async void OnDirChanged(string path)
     {
         _diskItem = new DiskItem(path, this);
         _diskItem.FillSize();
+        
+        await jsruntime.InvokeVoidAsync("startUpdateProgress");
     }
 
     public void Update()
@@ -35,7 +37,8 @@
         _progressBar.Progress = _diskItem.Progress;
         if (_diskItem.IsFilled)
         {
-            _highchart.SetData(_diskItem);       
+            _highchart.SetData(_diskItem);
+            jsruntime.InvokeVoidAsync("stopUpdateProgress");
         }
     }
 

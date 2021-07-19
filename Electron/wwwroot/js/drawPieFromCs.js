@@ -186,7 +186,29 @@ function clickHandler(event) {
 }
 
 function registerCsObj(obj) {
+    console.log(obj);
     window.csHighchart = obj;
+}
+
+function updateProgress() {
+    if (!window.csHighchart) return;
+
+    console.log(Date.now(), "updateProgress");
+    var elem = document.getElementById("progress");
+    window.csHighchart.invokeMethodAsync('GetProgress')
+        .then(data => {
+            console.log(Date.now(), "updateProgress", data);
+            elem.innerText = data;
+        });
+}
+
+var updateIntervalId = 0;
+function startUpdateProgress() {
+    updateIntervalId = setInterval(updateProgress, 500);
+}
+
+function stopUpdateProgress() {
+    clearInterval(updateIntervalId);
 }
 
 var _eventHandlers = {}; // somewhere global

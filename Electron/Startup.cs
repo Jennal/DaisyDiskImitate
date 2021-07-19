@@ -75,7 +75,7 @@ namespace DaisyDiskImitate
                 win.OnReadyToShow += () =>
                 {
                     //Remove Menu & Debug tools
-                    Electron.Menu.SetApplicationMenu(new MenuItem[]{ });
+                    // Electron.Menu.SetApplicationMenu(new MenuItem[]{ });
                     win.Show();
                 };
             });
